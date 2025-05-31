@@ -22,7 +22,7 @@ for (const envPath of envPaths) {
 const connectDB = async (): Promise<void> => {
   try {
     // Use a default connection string if MONGO_URI is not defined
-    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/crypto-wallet';
+    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/e-commerce';
     
     console.log(`Attempting to connect to MongoDB at: ${mongoUri.replace(/:([^:@]+)@/, ':****@')}`); // Hide password if present
     
