@@ -17,7 +17,7 @@ const setTokenCookie = (res: Response, token: string) => {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+     
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dana
   });
 };
@@ -28,6 +28,48 @@ const getErrorMessage = (error: unknown): string => {
     return error.message;
   }
   return String(error);
+};
+
+// @desc    Provera da li je korisnik prijavljen
+// @route   GET /api/users/check-auth
+// @access  Private
+export const checkAuth = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        isAuthenticated: false,
+        error: "Neautorizovan pristup"
+      });
+      return;
+    }
+
+    // Uzmi ceo dokument korisnika, samo izuzmi password
+    const user = await User
+      .findById(userId)
+      .select('-password');
+
+    if (!user) {
+      res.status(401).json({
+        isAuthenticated: false,
+        error: "Korisnik nije pronađen"
+      });
+      return;
+    }
+
+    res.status(200).json({
+      isAuthenticated: true,
+      user
+    });
+  } catch (error) {
+    console.error("Greška u checkAuth:", error);
+    res.status(500).json({
+      isAuthenticated: false,
+      error: "Greška na serveru",
+      details: process.env.NODE_ENV === "development" ? (error as Error).message : undefined
+    });
+  }
 };
 
 // @desc    Registracija novog korisnika
@@ -187,7 +229,17 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
-    const { name, surname, phone, gender, dateOfBirth, currentPassword, newPassword } = req.body;
+    const { 
+      email, 
+      name, 
+      surname, 
+      phone, 
+      gender, 
+      terms, 
+      dateOfBirth, 
+      currentPassword, 
+      newPassword 
+    } = req.body;
 
     if (!userId) {
       res.status(401).json({ error: "Neautorizovan pristup" });
@@ -204,14 +256,50 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     // Objekat za ažuriranje
     const updateData: any = {};
 
+    // Ažuriranje email-a
+    if (email && email.toLowerCase().trim() !== user.email) {
+      // Validacija email formata
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        res.status(400).json({ error: "Neispravna email adresa" });
+        return;
+      }
+
+      // Provera da li email već postoji
+      const existingUser = await User.findOne({ 
+        email: email.toLowerCase(), 
+        _id: { $ne: userId } 
+      });
+      if (existingUser) {
+        res.status(400).json({ error: "Korisnik sa ovom email adresom već postoji" });
+        return;
+      }
+
+      updateData.email = email.toLowerCase().trim();
+    }
+
     // Ažuriranje osnovnih informacija
-    if (name && name.trim() !== user.name) {
+    if (name !== undefined && name.trim() !== user.name) {
+      if (!name.trim()) {
+        res.status(400).json({ error: "Ime je obavezno polje" });
+        return;
+      }
       updateData.name = name.trim();
     }
-    if (surname && surname.trim() !== user.surname) {
+
+    if (surname !== undefined && surname.trim() !== user.surname) {
+      if (!surname.trim()) {
+        res.status(400).json({ error: "Prezime je obavezno polje" });
+        return;
+      }
       updateData.surname = surname.trim();
     }
-    if (phone && phone.trim() !== user.phone) {
+
+    if (phone !== undefined && phone.trim() !== user.phone) {
+      if (!phone.trim()) {
+        res.status(400).json({ error: "Telefon je obavezno polje" });
+        return;
+      }
       // Validacija telefona
       const phoneRegex = /^[0-9+\-\s()]+$/;
       if (!phoneRegex.test(phone)) {
@@ -220,11 +308,37 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       }
       updateData.phone = phone.trim();
     }
-    if (gender && gender !== user.gender) {
+
+    if (gender !== undefined && gender !== user.gender) {
+      if (!gender) {
+        res.status(400).json({ error: "Pol je obavezno polje" });
+        return;
+      }
       updateData.gender = gender;
     }
-    if (dateOfBirth) {
-      updateData.dateOfBirth = new Date(dateOfBirth);
+
+    // Ažuriranje terms (boolean)
+    if (terms !== undefined && terms !== user.terms) {
+      updateData.terms = Boolean(terms);
+    }
+
+    // Ažuriranje datuma rođenja
+    if (dateOfBirth !== undefined) {
+      if (dateOfBirth === null || dateOfBirth === "") {
+        updateData.dateOfBirth = null;
+      } else {
+        const parsedDate = new Date(dateOfBirth);
+        if (isNaN(parsedDate.getTime())) {
+          res.status(400).json({ error: "Neispravna format datuma rođenja" });
+          return;
+        }
+        // Provera da datum nije u budućnosti
+        if (parsedDate > new Date()) {
+          res.status(400).json({ error: "Datum rođenja ne može biti u budućnosti" });
+          return;
+        }
+        updateData.dateOfBirth = parsedDate;
+      }
     }
 
     // Ažuriranje lozinke
@@ -244,6 +358,13 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       // Validacija nove lozinke
       if (newPassword.length < 6) {
         res.status(400).json({ error: "Nova lozinka mora imati najmanje 6 karaktera" });
+        return;
+      }
+
+      // Provera da nova lozinka nije ista kao trenutna
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        res.status(400).json({ error: "Nova lozinka mora biti različita od trenutne" });
         return;
       }
 
@@ -296,6 +417,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     });
   }
 };
+
 
 // @desc    Prikaz svih korisnika
 // @route   GET /api/users
@@ -393,7 +515,7 @@ export const logoutUser = async (req: Request, res: Response): Promise<void> => 
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+    
     });
 
     res.status(200).json({

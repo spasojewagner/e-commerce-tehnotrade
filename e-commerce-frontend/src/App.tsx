@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import {
   Home, Zap, Smartphone, Laptop, Monitor, Camera,
-  Headphones, Gamepad2, Tv
+  Headphones, Gamepad2, Tv,
+  Sun,
+  Heart,
+  Glasses,
+  Bike,
+  Wind,
+  HardDrive,
+  ChefHat
 } from 'lucide-react';
 
 // Components
@@ -26,22 +33,263 @@ import PlacanjePlatnimKarticama from './pages/footer/PlacanjePlatnimKarticama';
 import Reklamacije from './pages/footer/Reklamacije';
 import LoginPage from './pages/LoginPage';
 
+// Auth store
+import { useAuthStore } from './store/useAuthStore';
+import ProductsPage from './pages/ProductPage';
+import CategoryProductsPage from './pages/CategoryProductsPage';
+
+// Protected Route Component
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const { isAuthenticated, isLoading, isInitialized, checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    // Pokreni checkAuth samo ako nije već inicijalizovano
+    if (!isInitialized) {
+      checkAuth();
+    }
+  }, [checkAuth, isInitialized]);
+
+  // Prikaži loading dok se provera izvršava
+  if (isLoading || !isInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg">Učitavanje...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Tek kada je provera završena (isInitialized = true) i korisnik nije ulogovan
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Svi proizvodi');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
 
-  const categories: Category[] = [
-    { name: 'Proizvodi', icon: Home, subcategories: ['Svi proizvodi', 'Novo', 'Akcije', 'Preporučeno'] },
-    { name: 'Bela tehnika', icon: Home, subcategories: ['Frižideri', 'Veš mašine', 'Sudmašine', 'Aspiratori'] },
-    { name: 'Mali kućni aparati', icon: Zap, subcategories: ['Mikser', 'Blender', 'Toster', 'Kafa aparati'] },
-    { name: 'Mali kuhinjski aparati', icon: Home, subcategories: ['Mikrotalasne', 'Rerna', 'Ringlice', 'Friteza'] },
-    { name: 'Televizori', icon: Tv, subcategories: ['LED TV', 'OLED TV', 'QLED TV', 'Smart TV'] },
-    { name: 'Laptopovi', icon: Laptop, subcategories: ['Gaming', 'Poslovni', 'Ultrabook', 'Budget'] },
-    { name: 'Mobilni telefoni', icon: Smartphone, subcategories: ['iPhone', 'Samsung', 'Xiaomi', 'Huawei'] },
-    { name: 'Foto i video oprema', icon: Camera, subcategories: ['Kamere', 'Objektivi', 'Tripod', 'Akcione kamere'] }
-  ];
+  // Auth store
+  const { checkAuth, isLoading: authLoading } = useAuthStore();
+
+  useEffect(() => {
+    // Proveri autentifikaciju prilikom učitavanja aplikacije
+    checkAuth();
+  }, [checkAuth]);
+
+const categories: Category[] = [
+  { 
+    name: 'Bela Tehnika', 
+    icon: Home, 
+    subcategories: [
+      'Frižideri',
+      'Zamrzivači',
+      'Sporeti',
+      'Sudomašine',
+      'Mikrotalasne pećnice',
+      'Aspiratori',
+      'Ugradbene ploče',
+      'Ugradbene rerne',
+      'Ugradbeni setovi',
+      'Bojleri',
+      'Veš mašine'
+    ] 
+  },
+  { 
+    name: 'Mali kućni aparati', 
+    icon: Zap, 
+    subcategories: [
+      'Usisivači',
+      'Usisivači oprema',
+      'Pegle',
+      'Paročistači',
+      'Telesne vage'
+    ] 
+  },
+  { 
+    name: 'Mali kuhinjski aparati', 
+    icon: ChefHat, 
+    subcategories: [
+      'Čaše za piće',
+      'Kuhinjske vage',
+      'Aparati za sladoled',
+      'Air Fryers',
+      'Blenderi',
+      'Indukcioni rešoi',
+      'Multikukeri',
+      'Šokovnici',
+      'Aparati za kafu',
+      'Grilovi',
+      'Ketleri',
+      'Seckalice',
+      'Tosteri'
+    ] 
+  },
+  { 
+    name: 'Računari i monitori', 
+    icon: Monitor, 
+    subcategories: [
+      'Laptopovi',
+      'Desktop računari',
+      'Monitori',
+      'Kućišta',
+      'Procesori',
+      'Hard diskovi',
+      'Grafičke karte',
+      'Konfiguracije'
+    ] 
+  },
+  { 
+    name: 'Računarska oprema', 
+    icon: HardDrive, 
+    subcategories: [
+      'Tastature',
+      'Miševi',
+      'Podloge za miševe',
+      'Memorije',
+      'RAM memorije',
+      'Memorijske kartice',
+      'USB memorije',
+      'Štampači',
+      'Laserski štampači',
+      'Laserski MF štampači',
+      'Inkjet štampači',
+      'Ploteri',
+      'Toneri',
+      'Oprema za štampače',
+      'Rad za štampače',
+      'Torbe i futrole',
+      'Matične ploče',
+      'Optički uređaji',
+      'Kertridži',
+      'Adapteri',
+      'Kuleri',
+      'Skeneri',
+      'SSD',
+      'UPS',
+      'UPS oprema',
+      'Mrežna oprema',
+      'Mrežni wireless adapteri',
+      'Mrežni access point',
+      'Mrežni extenderi',
+      'Mrežni home WiFi',
+      'Mrežne kartice',
+      'Mrežna oprema',
+      'Mrežni powerline',
+      'Mrežni ruteri',
+      'Mrežni smart home',
+      'Mrežni switch',
+      'Kablovi',
+      'Server oprema',
+      'Licence',
+      'MS LEGALIZATION',
+      'MS OEM',
+      'MS Retail App',
+      'MS retail OS',
+      'OEM Enterprise license'
+    ] 
+  },
+  { 
+    name: 'Gaming', 
+    icon: Gamepad2, 
+    subcategories: [
+      'Gaming oprema',
+      'Gaming stolice',
+      'Konzole za igranje'
+    ] 
+  },
+  { 
+    name: 'Telefoni i tableti', 
+    icon: Smartphone, 
+    subcategories: [
+      'Mobilni telefoni',
+      'Mobilni telefoni oprema',
+      'Tableti',
+      'Tableti oprema',
+      'Smart satovi',
+      'Baterije',
+      'Prenosni baterijski generatori',
+      'Slušalice za mobilne telefone',
+      'Fitness narukvice'
+    ] 
+  },
+  { 
+    name: 'TV i Audio', 
+    icon: Tv, 
+    subcategories: [
+      'Televizori',
+      'Televizori oprema',
+      'Projektori',
+      'Audio oprema',
+      'Zvučnici',
+      'Slušalice',
+      'Mikrofoni',
+      'NVR',
+      'Foto i video oprema',
+      'Akcione kamere i oprema',
+      'Web kamere',
+      'Dronovi',
+      'Dronovi oprema',
+      'IP video kamere'
+    ] 
+  },
+  { 
+    name: 'Klime i grejanje', 
+    icon: Wind, 
+    subcategories: [
+      'Klime',
+      'Klime oprema',
+      'Klime sistemi',
+      'Prečišćivači vazduha',
+      'Prečišćivači vazduha oprema',
+      'Grejna tela',
+      'Toplotne pumpe'
+    ] 
+  },
+  { 
+    name: 'Trotineti', 
+    icon: Bike, 
+    subcategories: [
+      'Električni trotineti',
+      'Električni trotineti oprema'
+    ] 
+  },
+  { 
+    name: 'Naočare', 
+    icon: Glasses, 
+    subcategories: [] 
+  },
+  { 
+    name: 'Nega i lepota', 
+    icon: Heart, 
+    subcategories: [
+      'Fenovi za kosu',
+      'Stajleri za kosu',
+      'Prese za kosu'
+    ] 
+  },
+  { 
+    name: 'Solarni paneli', 
+    icon: Sun, 
+    subcategories: [
+      'Solarni paneli',
+      'Invertori za solarne panele',
+      'Kablovi za solarne panele',
+      'Konektori za solarne panele',
+      'Konstrukcija za solarne panele',
+      'Oprema za solarne panele'
+    ] 
+  }
+];
 
   const featuredProducts: Product[] = [
     {
@@ -217,7 +465,7 @@ const App: React.FC = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  return (
+return (
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
         {/* Animated Background */}
@@ -230,21 +478,14 @@ const App: React.FC = () => {
         <Header
           categories={categories}
           onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-          cartItemsCount={getTotalCartItems()}
           wishlistCount={wishlistItems.length}
         />
-{/* 
+
         <div className="flex">
-          <Sidebar
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            categories={categories}
-            hotDeals={hotDeals}
-            selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
-          /> */}
+          {/* Sidebar je komentarisan u originalnom kodu */}
 
           <Routes>
+            {/* Javne rute - dostupne svim korisnicima */}
             <Route
               path="/"
               element={
@@ -259,20 +500,16 @@ const App: React.FC = () => {
             <Route
               path="/product/:id"
               element={
-                <ProductDetail
-                  products={featuredProducts}
-                  onAddToCart={handleAddToCart}
-                  onAddToWishlist={handleAddToWishlist}
-                />
+                <ProductDetail />
               }
             />
             <Route
               path="/category/:categoryName"
               element={
-                <div className="flex-1 p-8">
-                  <h1 className="text-4xl font-bold">Kategorija stranica</h1>
-                  <p className="text-gray-400 mt-4">Ovde će biti lista proizvoda za izabranu kategoriju.</p>
-                </div>
+                <CategoryProductsPage
+                  onAddToCart={handleAddToCart}
+                  onAddToWishlist={handleAddToWishlist}
+                />
               }
             />
             <Route
@@ -284,92 +521,91 @@ const App: React.FC = () => {
                 </div>
               }
             />
+
+            <Route path="/products" element={<ProductsPage />} />
+
+            <Route
+              path="/brands"
+              element={<Brands />}
+            />
+            <Route
+              path="/faq"
+              element={<FAQPage />}
+            />
+            <Route
+              path="/zastita-privatnosti"
+              element={<ZastitaPrivatnosti />}
+            />
+            <Route
+              path="/prava-potrosaca"
+              element={<PravaPotrosaca />}
+            />
+            <Route
+              path="/uslovi-koriscenja-i-prodaje"
+              element={<UsloviKoriscenja />}
+            />
+            <Route
+              path="/uslovi-isporuke"
+              element={<UsloviIsporuke />}
+            />
+            <Route
+              path="/placanje-platnim-karticama"
+              element={<PlacanjePlatnimKarticama />}
+            />
+            <Route
+              path="/reklamacije"
+              element={<Reklamacije />}
+            />
+            <Route
+              path="/login"
+              element={<LoginPage />}
+            />
+
+            {/* Zaštićene rute - dostupne samo ulogovanim korisnicima */}
             <Route
               path="/cart"
               element={
-                <CartPage />
+                <ProtectedRoute>
+                  <CartPage />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/profile"
               element={
-                <MyAccountPage />
+                <ProtectedRoute>
+                  <MyAccountPage />
+                </ProtectedRoute>
               }
             />
-            <Route
-              path="/brands"
-              element={
-                <Brands />
-              }
-            />
-            <Route
-              path="/faq"
-              element={
-                <FAQPage />
-              }
-            />
-            <Route
-              path="/zastita-privatnosti"
-              element={
-                <ZastitaPrivatnosti />
-              }
-            />
-            <Route
-              path="/prava-potrosaca"
-              element={
-                <PravaPotrosaca />
-              }
-            />
-            <Route
-              path="/uslovi-koriscenja-i-prodaje"
-              element={
-                <UsloviKoriscenja />
-              }
-            />
-            <Route
-              path="/uslovi-isporuke"
-              element={
-                <UsloviIsporuke />
-              }
-            />
-            <Route
-              path="/placanje-platnim-karticama"
-              element={
-                <PlacanjePlatnimKarticama />
-              }
-            />
-            <Route
-              path="/reklamacije"
-              element={
-                <Reklamacije/>
-              }
-            />
-            <Route path="/login" element={<LoginPage />} />
             <Route
               path="/wishlist"
               element={
-                <div className="flex-1 p-8">
-                  <h1 className="text-4xl font-bold">Lista želja</h1>
-                  <div className="mt-8">
-                    {wishlistItems.length === 0 ? (
-                      <p className="text-gray-400">Lista želja je prazna</p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {wishlistItems.map((product) => (
-                          <div key={product.id} className="bg-gray-800/30 rounded-xl p-4">
-                            <span className="text-4xl block text-center mb-4">{product.image}</span>
-                            <h3 className="font-bold">{product.name}</h3>
-                            <p className="text-orange-400">{product.price.toLocaleString()} RSD</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                <ProtectedRoute>
+                  <div className="flex-1 p-8">
+                    <h1 className="text-4xl font-bold">Lista želja</h1>
+                    <div className="mt-8">
+                      {wishlistItems.length === 0 ? (
+                        <p className="text-gray-400">Lista želja je prazna</p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {wishlistItems.map((product) => (
+                            <div key={product.id} className="bg-gray-800/30 rounded-xl p-4">
+                              <span className="text-4xl block text-center mb-4">{product.image}</span>
+                              <h3 className="font-bold">{product.name}</h3>
+                              <p className="text-orange-400">{product.price.toLocaleString()} RSD</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </ProtectedRoute>
               }
             />
           </Routes>
         </div>
+
         <Footer />
 
         {/* Overlay for mobile sidebar */}
@@ -379,7 +615,7 @@ const App: React.FC = () => {
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
-      {/* </div> */}
+      </div>
     </Router>
   );
 };

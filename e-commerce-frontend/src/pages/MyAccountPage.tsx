@@ -1,16 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Settings, Package, Heart, MapPin, CreditCard, Bell, Shield, Edit, Eye, EyeOff, Star, Calendar, Truck, Plus, Trash2 } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore'; // Adjust path as needed
 
 // Type definitions
-interface UserInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  gender: 'male' | 'female' | 'other';
-}
-
 interface Address {
   id: number;
   type: 'home' | 'work' | 'other';
@@ -47,22 +39,54 @@ interface NotificationSettings {
   sms: boolean;
 }
 
+interface PasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+interface FormErrors {
+  name?: string;
+  surname?: string;
+  email?: string;
+  phone?: string;
+  dateOfBirth?: string;
+}
+
 type TabId = 'profile' | 'orders' | 'addresses' | 'payments' | 'settings';
 
 const MyAccountPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('profile');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-
-  const [userInfo, setUserInfo] = useState<UserInfo>({
-    firstName: 'Marko',
-    lastName: 'Petrović',
-    email: 'marko.petrovic@email.com',
-    phone: '+381 64 123 4567',
-    dateOfBirth: '1990-05-15',
-    gender: 'male'
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [passwordData, setPasswordData] = useState<PasswordData>({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
 
+  // Zustand store
+  const { 
+    user, 
+    isLoading, 
+    error, 
+    updateProfile, 
+    getProfile, 
+    clearError 
+  } = useAuthStore();
+
+  // Local state for form data
+  const [userFormData, setUserFormData] = useState({
+    name: '',
+    surname: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
+    gender: 'male' as 'male' | 'female' | 'other'
+  });
+
+  // Mock data for features not yet implemented in backend
   const [addresses, setAddresses] = useState<Address[]>([
     {
       id: 1,
@@ -137,6 +161,158 @@ const MyAccountPage: React.FC = () => {
     }
   ];
 
+  // Validation functions
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+    
+    if (!userFormData.name.trim()) {
+      errors.name = 'Ime je obavezno polje';
+    }
+    
+    if (!userFormData.surname.trim()) {
+      errors.surname = 'Prezime je obavezno polje';
+    }
+    
+    if (!userFormData.email.trim()) {
+      errors.email = 'Email je obavezno polje';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userFormData.email)) {
+      errors.email = 'Unesite validan email';
+    }
+    
+    if (!userFormData.phone.trim()) {
+      errors.phone = 'Telefon je obavezno polje';
+    } else if (!/^[0-9+\-\s()]+$/.test(userFormData.phone)) {
+      errors.phone = 'Unesite validan broj telefona';
+    }
+    
+    if (userFormData.dateOfBirth && !isValidDate(userFormData.dateOfBirth)) {
+      errors.dateOfBirth = 'Unesite validan datum rođenja';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const isValidDate = (dateString: string): boolean => {
+    if (!dateString) return true; // Optional field
+    
+    try {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(dateString)) return false;
+      
+      const [year, month, day] = dateString.split('-').map(Number);
+      if (!year || !month || !day || month < 1 || month > 12 || day < 1 || day > 31) {
+        return false;
+      }
+      
+      const inputDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      
+      return inputDate <= today;
+    } catch {
+      return false;
+    }
+  };
+
+  // Helper function to format date for HTML input (yyyy-MM-dd)
+  const formatDateForInput = (dateValue: string | Date | null | undefined): string => {
+    if (!dateValue) return '';
+    
+    try {
+      let date: Date;
+      
+      if (dateValue instanceof Date) {
+        date = dateValue;
+      } else if (typeof dateValue === 'string') {
+        // Handle both ISO strings and date-only strings
+        date = new Date(dateValue);
+      } else {
+        return '';
+      }
+      
+      if (isNaN(date.getTime())) return '';
+      
+      // Get the date in local timezone to avoid timezone issues
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error('Error formatting date for input:', error);
+      return '';
+    }
+  };
+
+  // Helper function to format date for backend (yyyy-MM-dd or null)
+  const formatDateForBackend = (dateString: string): string | null => {
+    if (!dateString) return null;
+    
+    try {
+      // Validate the date string format (should be yyyy-MM-dd from HTML input)
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(dateString)) {
+        console.error('Invalid date format:', dateString);
+        return null;
+      }
+      
+      // Parse the date components to avoid timezone issues
+      const [year, month, day] = dateString.split('-').map(Number);
+      
+      // Validate the date components
+      if (!year || !month || !day || month < 1 || month > 12 || day < 1 || day > 31) {
+        console.error('Invalid date components:', { year, month, day });
+        return null;
+      }
+      
+      // Create date object in local timezone for comparison
+      const inputDate = new Date(year, month - 1, day); // month is 0-indexed
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Set to end of today for comparison
+      
+      if (inputDate > today) {
+        console.error('Date cannot be in the future:', dateString);
+        return null;
+      }
+      
+      // Return the date string as-is since HTML date input gives us yyyy-MM-dd format
+      return dateString;
+    } catch (error) {
+      console.error('Error formatting date for backend:', error);
+      return null;
+    }
+  };
+
+  // Initialize form data when user data is loaded
+  useEffect(() => {
+    if (user) {
+      setUserFormData({
+        name: user.name || '',
+        surname: user.surname || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        dateOfBirth: formatDateForInput(user.dateOfBirth),
+        gender: (user.gender as 'male' | 'female' | 'other') || 'male'
+      });
+      // Clear any previous errors when user data loads
+      setFormErrors({});
+    }
+  }, [user]);
+
+  // Load user profile on component mount
+  useEffect(() => {
+    if (!user) {
+      getProfile().catch(console.error);
+    }
+  }, []);
+
+  // Clear errors when component unmounts or tab changes
+  useEffect(() => {
+    clearError();
+    setFormErrors({});
+  }, [activeTab, clearError]);
+
   const getStatusColor = (status: Order['status']): string => {
     switch (status) {
       case 'delivered': return 'text-green-400 bg-green-500/20';
@@ -157,8 +333,91 @@ const MyAccountPage: React.FC = () => {
     }
   };
 
-  const handleUserInfoChange = (field: keyof UserInfo, value: string) => {
-    setUserInfo(prev => ({ ...prev, [field]: value }));
+  const handleUserInfoChange = (field: keyof typeof userFormData, value: string) => {
+    setUserFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear specific field error when user starts typing
+    if (formErrors[field as keyof FormErrors]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!isEditing) {
+      setIsEditing(true);
+      return;
+    }
+
+    // Validate form before submitting
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      // Prepare the data for backend with proper date formatting
+      const updateData = {
+        name: userFormData.name.trim(),
+        surname: userFormData.surname.trim(),
+        email: userFormData.email.trim(),
+        phone: userFormData.phone.trim(),
+        dateOfBirth: formatDateForBackend(userFormData.dateOfBirth),
+        gender: userFormData.gender
+      };
+
+      console.log('Sending update data:', updateData); // Debug log
+
+      await updateProfile(updateData);
+      setIsEditing(false);
+      setFormErrors({});
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form data to original user data
+    if (user) {
+      setUserFormData({
+        name: user.name || '',
+        surname: user.surname || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        dateOfBirth: formatDateForInput(user.dateOfBirth),
+        gender: (user.gender as 'male' | 'female' | 'other') || 'male'
+      });
+    }
+    setIsEditing(false);
+    setFormErrors({});
+    clearError();
+  };
+
+  const handlePasswordChange = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('Nova lozinka i potvrda se ne poklapaju');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      alert('Nova lozinka mora imati najmanje 6 karaktera');
+      return;
+    }
+
+    try {
+      await updateProfile({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      
+      alert('Lozinka je uspešno promenjena');
+    } catch (error) {
+      console.error('Failed to change password:', error);
+    }
   };
 
   const deleteAddress = (id: number) => {
@@ -185,73 +444,133 @@ const MyAccountPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Informacije o profilu</h2>
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors"
-        >
-          <Edit className="w-4 h-4" />
-          <span>{isEditing ? 'Sačuvaj' : 'Uredi'}</span>
-        </button>
+        <div className="flex space-x-3">
+          {isEditing && (
+            <button
+              onClick={handleCancelEdit}
+              disabled={isLoading}
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-600 hover:bg-gray-700/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+            >
+              <span>Otkaži</span>
+            </button>
+          )}
+          <button
+            onClick={handleSaveProfile}
+            disabled={isLoading}
+            className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+          >
+            <Edit className="w-4 h-4" />
+            <span>{isLoading ? 'Čuva...' : isEditing ? 'Sačuvaj' : 'Uredi'}</span>
+          </button>
+        </div>
       </div>
+
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-400">
+          {error}
+        </div>
+      )}
 
       <div className="bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Ime</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Ime <span className="text-red-400">*</span>
+            </label>
             <input
               type="text"
-              value={userInfo.firstName}
+              value={userFormData.name}
               disabled={!isEditing}
-              onChange={(e) => handleUserInfoChange('firstName', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+              onChange={(e) => handleUserInfoChange('name', e.target.value)}
+              className={`w-full px-4 py-3 bg-gray-700/30 border rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50 ${
+                formErrors.name ? 'border-red-500' : 'border-gray-600'
+              }`}
+              placeholder="Unesite vaše ime"
             />
+            {formErrors.name && (
+              <p className="text-red-400 text-sm mt-1">{formErrors.name}</p>
+            )}
           </div>
+          
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Prezime</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Prezime <span className="text-red-400">*</span>
+            </label>
             <input
               type="text"
-              value={userInfo.lastName}
+              value={userFormData.surname}
               disabled={!isEditing}
-              onChange={(e) => handleUserInfoChange('lastName', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+              onChange={(e) => handleUserInfoChange('surname', e.target.value)}
+              className={`w-full px-4 py-3 bg-gray-700/30 border rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50 ${
+                formErrors.surname ? 'border-red-500' : 'border-gray-600'
+              }`}
+              placeholder="Unesite vaše prezime"
             />
+            {formErrors.surname && (
+              <p className="text-red-400 text-sm mt-1">{formErrors.surname}</p>
+            )}
           </div>
+          
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Email <span className="text-red-400">*</span>
+            </label>
             <input
               type="email"
-              value={userInfo.email}
+              value={userFormData.email}
               disabled={!isEditing}
               onChange={(e) => handleUserInfoChange('email', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+              className={`w-full px-4 py-3 bg-gray-700/30 border rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50 ${
+                formErrors.email ? 'border-red-500' : 'border-gray-600'
+              }`}
+              placeholder="Unesite vaš email"
             />
+            {formErrors.email && (
+              <p className="text-red-400 text-sm mt-1">{formErrors.email}</p>
+            )}
           </div>
+          
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Telefon</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Telefon <span className="text-red-400">*</span>
+            </label>
             <input
               type="tel"
-              value={userInfo.phone}
+              value={userFormData.phone}
               disabled={!isEditing}
               onChange={(e) => handleUserInfoChange('phone', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+              className={`w-full px-4 py-3 bg-gray-700/30 border rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50 ${
+                formErrors.phone ? 'border-red-500' : 'border-gray-600'
+              }`}
+              placeholder="Unesite vaš broj telefona"
             />
+            {formErrors.phone && (
+              <p className="text-red-400 text-sm mt-1">{formErrors.phone}</p>
+            )}
           </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">Datum rođenja</label>
             <input
               type="date"
-              value={userInfo.dateOfBirth}
+              value={userFormData.dateOfBirth}
               disabled={!isEditing}
               onChange={(e) => handleUserInfoChange('dateOfBirth', e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+              className={`w-full px-4 py-3 bg-gray-700/30 border rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50 ${
+                formErrors.dateOfBirth ? 'border-red-500' : 'border-gray-600'
+              }`}
             />
+            {formErrors.dateOfBirth && (
+              <p className="text-red-400 text-sm mt-1">{formErrors.dateOfBirth}</p>
+            )}
           </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">Pol</label>
             <select
-              value={userInfo.gender}
+              value={userFormData.gender}
               disabled={!isEditing}
-              onChange={(e) => handleUserInfoChange('gender', e.target.value as UserInfo['gender'])}
+              onChange={(e) => handleUserInfoChange('gender', e.target.value)}
               className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
             >
               <option value="male">Muški</option>
@@ -259,6 +578,10 @@ const MyAccountPage: React.FC = () => {
               <option value="other">Ostalo</option>
             </select>
           </div>
+        </div>
+        
+        <div className="mt-4 text-sm text-gray-400">
+          <span className="text-red-400">*</span> Obavezna polja
         </div>
       </div>
 
@@ -271,6 +594,8 @@ const MyAccountPage: React.FC = () => {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                 className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none pr-12"
                 placeholder="Unesite trenutnu lozinku"
               />
@@ -286,6 +611,8 @@ const MyAccountPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-400 mb-2">Nova lozinka</label>
             <input
               type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
               className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none"
               placeholder="Unesite novu lozinku"
             />
@@ -294,12 +621,18 @@ const MyAccountPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-400 mb-2">Potvrdi novu lozinku</label>
             <input
               type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
               className="w-full px-4 py-3 bg-gray-700/30 border border-gray-600 rounded-lg focus:border-orange-500 focus:outline-none"
               placeholder="Potvrdite novu lozinku"
             />
           </div>
-          <button className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition-colors">
-            Promeni lozinku
+          <button 
+            onClick={handlePasswordChange}
+            disabled={isLoading || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+            className="px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+          >
+            {isLoading ? 'Menja...' : 'Promeni lozinku'}
           </button>
         </div>
       </div>
@@ -394,6 +727,13 @@ const MyAccountPage: React.FC = () => {
               <p className="text-gray-300">{address.city}, {address.postalCode}</p>
             </div>
             
+        
+            
+            <div className="space-y-2 mb-4">
+              <p className="text-gray-300">{address.street}</p>
+              <p className="text-gray-300">{address.city}, {address.postalCode}</p>
+            </div>
+            
             <div className="flex space-x-2">
               <button className="flex-1 py-2 border border-gray-600 hover:bg-gray-700/30 rounded-lg transition-colors">
                 Uredi
@@ -410,7 +750,6 @@ const MyAccountPage: React.FC = () => {
       </div>
     </div>
   );
-
   const renderPaymentsTab = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
