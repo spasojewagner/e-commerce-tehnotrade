@@ -336,7 +336,7 @@ const ProductsPage: React.FC = () => {
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center py-20">
+          <div className="flex min-h-screen justify-center py-20">
             <div className="animate-spin h-16 w-16 border-b-2 border-orange-500 rounded-full"></div>
           </div>
         )}

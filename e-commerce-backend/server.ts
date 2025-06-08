@@ -8,7 +8,8 @@ import connectDB from './config/dataBase';
 import userRoutes from './routes/userRoutes'
 import productRoutes from './routes/productRoutes'
 import cartRoutes from './routes/cartRoutes'
-
+import adminFixRoutes from './scripts/adminFixRoutes';
+import ordersRoutes from './routes/ordersRoutes'
 
 //rekao  chatgpt  da stavim jbm mu sve 
 import { EventEmitter } from 'events';
@@ -33,6 +34,7 @@ app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:5173",
   credentials: true,
   methods: ["GET","POST","PUT","OPTIONS","DELETE"]
+  
 })); // Enable CORS
 
 
@@ -43,8 +45,10 @@ app.use(cookieParser());
 app.use('/api/auth', userRoutes);
 app.use('/api/products', productRoutes );
 app.use('/api/cart', cartRoutes)
+app.use('/api/orders', ordersRoutes)
 
-
+//fix route 
+app.use('/api/admin', adminFixRoutes);
 
 // Start server
 const startServer = async () => {

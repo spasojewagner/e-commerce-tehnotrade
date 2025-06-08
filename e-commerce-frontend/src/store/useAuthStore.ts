@@ -3,7 +3,8 @@ import { axiosInstance } from '../https';
 
 // Tipovi - POTPUNO USKLAĐEN sa backend User modelom
 export interface User {
-  id: string;
+  _id: string,
+  id?: string;
   email: string;
   name: string;
   surname: string;
@@ -75,7 +76,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (data: LoginData) => {
     try {
       set({ isLoading: true, error: null });
-      
+       
       const response = await axiosInstance.post('/api/auth/login', data);
       
       // Dodaj debug log za login response

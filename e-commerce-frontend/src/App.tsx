@@ -37,6 +37,8 @@ import LoginPage from './pages/LoginPage';
 import { useAuthStore } from './store/useAuthStore';
 import ProductsPage from './pages/ProductPage';
 import CategoryProductsPage from './pages/CategoryProductsPage';
+import CheckoutPage from './pages/CheckoutPage';
+import OrdersPage from './pages/OrdersPage';
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -560,6 +562,10 @@ return (
               path="/login"
               element={<LoginPage />}
             />
+              <Route
+              path="/checkout"
+              element={<CheckoutPage/>}
+            />
 
             {/* Zaštićene rute - dostupne samo ulogovanim korisnicima */}
             <Route
@@ -570,11 +576,28 @@ return (
                 </ProtectedRoute>
               }
             />
+              <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                 <CheckoutPage/>
+                </ProtectedRoute>
+              }
+            />
+            
             <Route
               path="/profile"
               element={
                 <ProtectedRoute>
                   <MyAccountPage />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/profile/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage/>
                 </ProtectedRoute>
               }
             />

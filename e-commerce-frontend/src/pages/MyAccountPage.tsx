@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Settings, Package, Heart, MapPin, CreditCard, Bell, Shield, Edit, Eye, EyeOff, Star, Calendar, Truck, Plus, Trash2 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore'; // Adjust path as needed
+import OrdersPage from './OrdersPage'; // Import the OrdersPage component
 
 // Type definitions
 interface Address {
@@ -11,15 +12,6 @@ interface Address {
   city: string;
   postalCode: string;
   isDefault: boolean;
-}
-
-interface Order {
-  id: string;
-  date: string;
-  status: 'delivered' | 'shipped' | 'processing' | 'cancelled';
-  total: number;
-  items: number;
-  trackingNumber: string;
 }
 
 interface PaymentMethod {
@@ -133,33 +125,6 @@ const MyAccountPage: React.FC = () => {
     newsletter: true,
     sms: false
   });
-
-  const orders: Order[] = [
-    {
-      id: 'ORD-2025-001',
-      date: '2025-05-20',
-      status: 'delivered',
-      total: 89990,
-      items: 3,
-      trackingNumber: 'TRK123456789'
-    },
-    {
-      id: 'ORD-2025-002',
-      date: '2025-05-25',
-      status: 'processing',
-      total: 25990,
-      items: 2,
-      trackingNumber: 'TRK987654321'
-    },
-    {
-      id: 'ORD-2025-003',
-      date: '2025-05-28',
-      status: 'shipped',
-      total: 15990,
-      items: 1,
-      trackingNumber: 'TRK456789123'
-    }
-  ];
 
   // Validation functions
   const validateForm = (): boolean => {
@@ -312,26 +277,6 @@ const MyAccountPage: React.FC = () => {
     clearError();
     setFormErrors({});
   }, [activeTab, clearError]);
-
-  const getStatusColor = (status: Order['status']): string => {
-    switch (status) {
-      case 'delivered': return 'text-green-400 bg-green-500/20';
-      case 'shipped': return 'text-blue-400 bg-blue-500/20';
-      case 'processing': return 'text-orange-400 bg-orange-500/20';
-      case 'cancelled': return 'text-red-400 bg-red-500/20';
-      default: return 'text-gray-400 bg-gray-500/20';
-    }
-  };
-
-  const getStatusText = (status: Order['status']): string => {
-    switch (status) {
-      case 'delivered': return 'Dostavljeno';
-      case 'shipped': return 'Poslato';
-      case 'processing': return 'U obradi';
-      case 'cancelled': return 'Otkazano';
-      default: return 'Nepoznato';
-    }
-  };
 
   const handleUserInfoChange = (field: keyof typeof userFormData, value: string) => {
     setUserFormData(prev => ({ ...prev, [field]: value }));
@@ -639,67 +584,6 @@ const MyAccountPage: React.FC = () => {
     </div>
   );
 
-  const renderOrdersTab = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Moje porudžbine</h2>
-      
-      <div className="space-y-4">
-        {orders.map(order => (
-          <div key={order.id} className="bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-xl font-bold">#{order.id}</h3>
-                <p className="text-gray-400 flex items-center mt-1">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  {new Date(order.date).toLocaleDateString('sr-RS')}
-                </p>
-              </div>
-              <div className="text-right">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                  {getStatusText(order.status)}
-                </span>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-gray-400 text-sm">Ukupno</p>
-                <p className="text-xl font-bold text-orange-400">{order.total.toLocaleString()} RSD</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Broj stavki</p>
-                <p className="text-lg font-medium">{order.items} stavki</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Broj za praćenje</p>
-                <p className="text-lg font-medium">{order.trackingNumber}</p>
-              </div>
-            </div>
-            
-            <div className="flex space-x-4">
-              <button className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors">
-                <Eye className="w-4 h-4" />
-                <span>Detalji</span>
-              </button>
-              {order.status === 'delivered' && (
-                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-600 hover:bg-gray-700/30 rounded-lg transition-colors">
-                  <Star className="w-4 h-4" />
-                  <span>Oceni</span>
-                </button>
-              )}
-              {order.status === 'shipped' && (
-                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-600 hover:bg-gray-700/30 rounded-lg transition-colors">
-                  <Truck className="w-4 h-4" />
-                  <span>Prati</span>
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
   const renderAddressesTab = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -727,13 +611,6 @@ const MyAccountPage: React.FC = () => {
               <p className="text-gray-300">{address.city}, {address.postalCode}</p>
             </div>
             
-        
-            
-            <div className="space-y-2 mb-4">
-              <p className="text-gray-300">{address.street}</p>
-              <p className="text-gray-300">{address.city}, {address.postalCode}</p>
-            </div>
-            
             <div className="flex space-x-2">
               <button className="flex-1 py-2 border border-gray-600 hover:bg-gray-700/30 rounded-lg transition-colors">
                 Uredi
@@ -750,6 +627,7 @@ const MyAccountPage: React.FC = () => {
       </div>
     </div>
   );
+
   const renderPaymentsTab = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -800,6 +678,8 @@ const MyAccountPage: React.FC = () => {
     </div>
   );
 
+  
+            
   const renderSettingsTab = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Podešavanja</h2>
@@ -899,21 +779,28 @@ const MyAccountPage: React.FC = () => {
   );
 
   const renderActiveTab = () => {
-    switch (activeTab) {
-      case 'profile':
-        return renderProfileTab();
-      case 'orders':
-        return renderOrdersTab();
-      case 'addresses':
-        return renderAddressesTab();
-      case 'payments':
-        return renderPaymentsTab();
-      case 'settings':
-        return renderSettingsTab();
-      default:
-        return renderProfileTab();
-    }
-  };
+  switch (activeTab) {
+    case 'profile':
+      return renderProfileTab();
+
+    case 'orders':
+      // Ispravno vraćamo OrdersPage
+      return <OrdersPage />;
+
+    case 'addresses':
+      return renderAddressesTab();
+
+    case 'payments':
+      return renderPaymentsTab();
+
+    case 'settings':
+      return renderSettingsTab();
+
+    default:
+      return renderProfileTab();
+  }
+};
+
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
