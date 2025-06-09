@@ -55,6 +55,12 @@ const userSchema = new mongoose.Schema(
     cart: {
       type: [cartItemSchema],
       default: []
+    },
+    //dodavanje za pristup dashboardu
+     role: {
+      type: String,
+      enum: ['user','admin'],
+      default: 'user'
     }
   },
   { timestamps: true }

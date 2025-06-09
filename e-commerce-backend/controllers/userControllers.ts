@@ -8,8 +8,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "tajna-koja-bi-trebala-biti-u-env-f
 const COOKIE_NAME = "jwt";
 
 // Helper funkcija za kreiranje JWT tokena
-const generateToken = (userId: string): string => {
-  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "7d" });
+// controllers/authController.ts
+const generateToken = (userId: string, role: string): string => {
+  return jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: '7d' });
 };
 
 // Helper funkcija za setovanje cookie-ja
@@ -77,7 +78,7 @@ export const checkAuth = async (req: AuthRequest, res: Response): Promise<void> 
 // @access  Public
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, name, surname, phone, password, gender, terms, dateOfBirth } = req.body;
+    const { email, name, surname, phone, password, gender, terms, dateOfBirth, role } = req.body;
 
     // Validacija obaveznih polja
     if (!email || !name || !surname || !phone || !password || !gender) {
@@ -127,6 +128,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       phone: phone.trim(),
       password: hashedPassword,
       gender,
+      role,
       terms: terms || false,
       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
     });
@@ -134,7 +136,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const savedUser = await newUser.save();
 
     // Generisanje tokena
-    const token = generateToken(savedUser._id.toString());
+    const token = generateToken(savedUser._id.toString(), savedUser.role);
     setTokenCookie(res, token);
 
     // Vraćanje odgovora bez lozinke
@@ -146,6 +148,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       phone: savedUser.phone,
       gender: savedUser.gender,
       terms: savedUser.terms,
+       role: savedUser.role, 
       dateOfBirth: savedUser.dateOfBirth,
       createdAt: savedUser.createdAt,
     };
@@ -192,7 +195,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Generisanje tokena
-    const token = generateToken(user._id.toString());
+    const token = generateToken(user._id.toString(), user.role);
     setTokenCookie(res, token);
 
     // Vraćanje odgovora bez lozinke
@@ -206,6 +209,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       terms: user.terms,
       dateOfBirth: user.dateOfBirth,
       createdAt: user.createdAt,
+        role: user.role, 
       updatedAt: user.updatedAt,
     };
 

@@ -34,6 +34,9 @@ const Header: React.FC<HeaderProps> = ({
   // Računamo ukupan broj proizvoda u korpi
   const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  // Proveravamo da li je korisnik admin
+  const isAdmin = user?.role === 'admin';
+
   // Učitavamo korpu kada se komponenta mount-uje ili kada se korisnik uloguje
   useEffect(() => {
     if (isAuthenticated) {
@@ -143,6 +146,10 @@ const Header: React.FC<HeaderProps> = ({
             <Link to="/brands"  className="hover:text-orange-400 transition-colors">Brendovi</Link>
             <Link to="/faq"     className="hover:text-orange-400 transition-colors">Česta Pitanja</Link>
             <Link to="/products"className="hover:text-orange-400 transition-colors">Proizvodi</Link>
+            {/* Dashboard link se prikazuje samo admin korisnicima */}
+            {isAuthenticated && isAdmin && (
+              <Link to="/dashboard" className="hover:text-orange-400 transition-colors">Dashboard</Link>
+            )}
           </div>
         </div>
 

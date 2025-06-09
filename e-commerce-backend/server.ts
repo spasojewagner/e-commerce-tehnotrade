@@ -50,6 +50,9 @@ app.use('/api/orders', ordersRoutes)
 //fix route 
 app.use('/api/admin', adminFixRoutes);
 
+//admnin
+app.use('/api/users', userRoutes); // profile, getAllUsers...
+
 // Start server
 const startServer = async () => {
   try {

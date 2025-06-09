@@ -7,6 +7,7 @@ export interface User {
   id?: string;
   email: string;
   name: string;
+  role: string;
   surname: string;
   phone: string; // OBAVEZNO - required: true u backend modelu
   gender: string; // OBAVEZNO - required: true u backend modelu  

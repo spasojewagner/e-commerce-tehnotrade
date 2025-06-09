@@ -17,6 +17,7 @@ import Header from './components/Header';
 import Sidebar from './components/SideBar';
 import HomePage from './pages/HomePage';
 import ProductDetail from './components/ProductDetails';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Types
 import { Product, Category, HotDeal, CartItem } from './types';
@@ -39,41 +40,8 @@ import ProductsPage from './pages/ProductPage';
 import CategoryProductsPage from './pages/CategoryProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
+import AdminDashboard from './components/dashboard/AdminDashboard';
 
-// Protected Route Component
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, isInitialized, checkAuth } = useAuthStore();
-
-  useEffect(() => {
-    // Pokreni checkAuth samo ako nije već inicijalizovano
-    if (!isInitialized) {
-      checkAuth();
-    }
-  }, [checkAuth, isInitialized]);
-
-  // Prikaži loading dok se provera izvršava
-  if (isLoading || !isInitialized) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-white text-lg">Učitavanje...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Tek kada je provera završena (isInitialized = true) i korisnik nije ulogovan
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-};
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Svi proizvodi');
@@ -84,214 +52,213 @@ const App: React.FC = () => {
   const { checkAuth, isLoading: authLoading } = useAuthStore();
 
   useEffect(() => {
-    // Proveri autentifikaciju prilikom učitavanja aplikacije
     checkAuth();
   }, [checkAuth]);
 
-const categories: Category[] = [
-  { 
-    name: 'Bela Tehnika', 
-    icon: Home, 
-    subcategories: [
-      'Frižideri',
-      'Zamrzivači',
-      'Sporeti',
-      'Sudomašine',
-      'Mikrotalasne pećnice',
-      'Aspiratori',
-      'Ugradbene ploče',
-      'Ugradbene rerne',
-      'Ugradbeni setovi',
-      'Bojleri',
-      'Veš mašine'
-    ] 
-  },
-  { 
-    name: 'Mali kućni aparati', 
-    icon: Zap, 
-    subcategories: [
-      'Usisivači',
-      'Usisivači oprema',
-      'Pegle',
-      'Paročistači',
-      'Telesne vage'
-    ] 
-  },
-  { 
-    name: 'Mali kuhinjski aparati', 
-    icon: ChefHat, 
-    subcategories: [
-      'Čaše za piće',
-      'Kuhinjske vage',
-      'Aparati za sladoled',
-      'Air Fryers',
-      'Blenderi',
-      'Indukcioni rešoi',
-      'Multikukeri',
-      'Šokovnici',
-      'Aparati za kafu',
-      'Grilovi',
-      'Ketleri',
-      'Seckalice',
-      'Tosteri'
-    ] 
-  },
-  { 
-    name: 'Računari i monitori', 
-    icon: Monitor, 
-    subcategories: [
-      'Laptopovi',
-      'Desktop računari',
-      'Monitori',
-      'Kućišta',
-      'Procesori',
-      'Hard diskovi',
-      'Grafičke karte',
-      'Konfiguracije'
-    ] 
-  },
-  { 
-    name: 'Računarska oprema', 
-    icon: HardDrive, 
-    subcategories: [
-      'Tastature',
-      'Miševi',
-      'Podloge za miševe',
-      'Memorije',
-      'RAM memorije',
-      'Memorijske kartice',
-      'USB memorije',
-      'Štampači',
-      'Laserski štampači',
-      'Laserski MF štampači',
-      'Inkjet štampači',
-      'Ploteri',
-      'Toneri',
-      'Oprema za štampače',
-      'Rad za štampače',
-      'Torbe i futrole',
-      'Matične ploče',
-      'Optički uređaji',
-      'Kertridži',
-      'Adapteri',
-      'Kuleri',
-      'Skeneri',
-      'SSD',
-      'UPS',
-      'UPS oprema',
-      'Mrežna oprema',
-      'Mrežni wireless adapteri',
-      'Mrežni access point',
-      'Mrežni extenderi',
-      'Mrežni home WiFi',
-      'Mrežne kartice',
-      'Mrežna oprema',
-      'Mrežni powerline',
-      'Mrežni ruteri',
-      'Mrežni smart home',
-      'Mrežni switch',
-      'Kablovi',
-      'Server oprema',
-      'Licence',
-      'MS LEGALIZATION',
-      'MS OEM',
-      'MS Retail App',
-      'MS retail OS',
-      'OEM Enterprise license'
-    ] 
-  },
-  { 
-    name: 'Gaming', 
-    icon: Gamepad2, 
-    subcategories: [
-      'Gaming oprema',
-      'Gaming stolice',
-      'Konzole za igranje'
-    ] 
-  },
-  { 
-    name: 'Telefoni i tableti', 
-    icon: Smartphone, 
-    subcategories: [
-      'Mobilni telefoni',
-      'Mobilni telefoni oprema',
-      'Tableti',
-      'Tableti oprema',
-      'Smart satovi',
-      'Baterije',
-      'Prenosni baterijski generatori',
-      'Slušalice za mobilne telefone',
-      'Fitness narukvice'
-    ] 
-  },
-  { 
-    name: 'TV i Audio', 
-    icon: Tv, 
-    subcategories: [
-      'Televizori',
-      'Televizori oprema',
-      'Projektori',
-      'Audio oprema',
-      'Zvučnici',
-      'Slušalice',
-      'Mikrofoni',
-      'NVR',
-      'Foto i video oprema',
-      'Akcione kamere i oprema',
-      'Web kamere',
-      'Dronovi',
-      'Dronovi oprema',
-      'IP video kamere'
-    ] 
-  },
-  { 
-    name: 'Klime i grejanje', 
-    icon: Wind, 
-    subcategories: [
-      'Klime',
-      'Klime oprema',
-      'Klime sistemi',
-      'Prečišćivači vazduha',
-      'Prečišćivači vazduha oprema',
-      'Grejna tela',
-      'Toplotne pumpe'
-    ] 
-  },
-  { 
-    name: 'Trotineti', 
-    icon: Bike, 
-    subcategories: [
-      'Električni trotineti',
-      'Električni trotineti oprema'
-    ] 
-  },
-  { 
-    name: 'Naočare', 
-    icon: Glasses, 
-    subcategories: [] 
-  },
-  { 
-    name: 'Nega i lepota', 
-    icon: Heart, 
-    subcategories: [
-      'Fenovi za kosu',
-      'Stajleri za kosu',
-      'Prese za kosu'
-    ] 
-  },
-  { 
-    name: 'Solarni paneli', 
-    icon: Sun, 
-    subcategories: [
-      'Solarni paneli',
-      'Invertori za solarne panele',
-      'Kablovi za solarne panele',
-      'Konektori za solarne panele',
-      'Konstrukcija za solarne panele',
-      'Oprema za solarne panele'
-    ] 
-  }
-];
+  const categories: Category[] = [
+    {
+      name: 'Bela Tehnika',
+      icon: Home,
+      subcategories: [
+        'Frižideri',
+        'Zamrzivači',
+        'Sporeti',
+        'Sudomašine',
+        'Mikrotalasne pećnice',
+        'Aspiratori',
+        'Ugradbene ploče',
+        'Ugradbene rerne',
+        'Ugradbeni setovi',
+        'Bojleri',
+        'Veš mašine'
+      ]
+    },
+    {
+      name: 'Mali kućni aparati',
+      icon: Zap,
+      subcategories: [
+        'Usisivači',
+        'Usisivači oprema',
+        'Pegle',
+        'Paročistači',
+        'Telesne vage'
+      ]
+    },
+    {
+      name: 'Mali kuhinjski aparati',
+      icon: ChefHat,
+      subcategories: [
+        'Čaše za piće',
+        'Kuhinjske vage',
+        'Aparati za sladoled',
+        'Air Fryers',
+        'Blenderi',
+        'Indukcioni rešoi',
+        'Multikukeri',
+        'Šokovnici',
+        'Aparati za kafu',
+        'Grilovi',
+        'Ketleri',
+        'Seckalice',
+        'Tosteri'
+      ]
+    },
+    {
+      name: 'Računari i monitori',
+      icon: Monitor,
+      subcategories: [
+        'Laptopovi',
+        'Desktop računari',
+        'Monitori',
+        'Kućišta',
+        'Procesori',
+        'Hard diskovi',
+        'Grafičke karte',
+        'Konfiguracije'
+      ]
+    },
+    {
+      name: 'Računarska oprema',
+      icon: HardDrive,
+      subcategories: [
+        'Tastature',
+        'Miševi',
+        'Podloge za miševe',
+        'Memorije',
+        'RAM memorije',
+        'Memorijske kartice',
+        'USB memorije',
+        'Štampači',
+        'Laserski štampači',
+        'Laserski MF štampači',
+        'Inkjet štampači',
+        'Ploteri',
+        'Toneri',
+        'Oprema za štampače',
+        'Rad za štampače',
+        'Torbe i futrole',
+        'Matične ploče',
+        'Optički uređaji',
+        'Kertridži',
+        'Adapteri',
+        'Kuleri',
+        'Skeneri',
+        'SSD',
+        'UPS',
+        'UPS oprema',
+        'Mrežna oprema',
+        'Mrežni wireless adapteri',
+        'Mrežni access point',
+        'Mrežni extenderi',
+        'Mrežni home WiFi',
+        'Mrežne kartice',
+        'Mrežna oprema',
+        'Mrežni powerline',
+        'Mrežni ruteri',
+        'Mrežni smart home',
+        'Mrežni switch',
+        'Kablovi',
+        'Server oprema',
+        'Licence',
+        'MS LEGALIZATION',
+        'MS OEM',
+        'MS Retail App',
+        'MS retail OS',
+        'OEM Enterprise license'
+      ]
+    },
+    {
+      name: 'Gaming',
+      icon: Gamepad2,
+      subcategories: [
+        'Gaming oprema',
+        'Gaming stolice',
+        'Konzole za igranje'
+      ]
+    },
+    {
+      name: 'Telefoni i tableti',
+      icon: Smartphone,
+      subcategories: [
+        'Mobilni telefoni',
+        'Mobilni telefoni oprema',
+        'Tableti',
+        'Tableti oprema',
+        'Smart satovi',
+        'Baterije',
+        'Prenosni baterijski generatori',
+        'Slušalice za mobilne telefone',
+        'Fitness narukvice'
+      ]
+    },
+    {
+      name: 'TV i Audio',
+      icon: Tv,
+      subcategories: [
+        'Televizori',
+        'Televizori oprema',
+        'Projektori',
+        'Audio oprema',
+        'Zvučnici',
+        'Slušalice',
+        'Mikrofoni',
+        'NVR',
+        'Foto i video oprema',
+        'Akcione kamere i oprema',
+        'Web kamere',
+        'Dronovi',
+        'Dronovi oprema',
+        'IP video kamere'
+      ]
+    },
+    {
+      name: 'Klime i grejanje',
+      icon: Wind,
+      subcategories: [
+        'Klime',
+        'Klime oprema',
+        'Klime sistemi',
+        'Prečišćivači vazduha',
+        'Prečišćivači vazduha oprema',
+        'Grejna tela',
+        'Toplotne pumpe'
+      ]
+    },
+    {
+      name: 'Trotineti',
+      icon: Bike,
+      subcategories: [
+        'Električni trotineti',
+        'Električni trotineti oprema'
+      ]
+    },
+    {
+      name: 'Naočare',
+      icon: Glasses,
+      subcategories: []
+    },
+    {
+      name: 'Nega i lepota',
+      icon: Heart,
+      subcategories: [
+        'Fenovi za kosu',
+        'Stajleri za kosu',
+        'Prese za kosu'
+      ]
+    },
+    {
+      name: 'Solarni paneli',
+      icon: Sun,
+      subcategories: [
+        'Solarni paneli',
+        'Invertori za solarne panele',
+        'Kablovi za solarne panele',
+        'Konektori za solarne panele',
+        'Konstrukcija za solarne panele',
+        'Oprema za solarne panele'
+      ]
+    }
+  ];
 
   const featuredProducts: Product[] = [
     {
@@ -467,7 +434,7 @@ const categories: Category[] = [
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-return (
+  return (
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
         {/* Animated Background */}
@@ -484,10 +451,8 @@ return (
         />
 
         <div className="flex">
-          {/* Sidebar je komentarisan u originalnom kodu */}
-
           <Routes>
-            {/* Javne rute - dostupne svim korisnicima */}
+            {/* JAVNE RUTE - dostupne svim korisnicima */}
             <Route
               path="/"
               element={
@@ -499,12 +464,8 @@ return (
                 />
               }
             />
-            <Route
-              path="/product/:id"
-              element={
-                <ProductDetail />
-              }
-            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
             <Route
               path="/category/:categoryName"
               element={
@@ -523,88 +484,25 @@ return (
                 </div>
               }
             />
-
             <Route path="/products" element={<ProductsPage />} />
+            <Route path="/brands" element={<Brands />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/zastita-privatnosti" element={<ZastitaPrivatnosti />} />
+            <Route path="/prava-potrosaca" element={<PravaPotrosaca />} />
+            <Route path="/uslovi-koriscenja-i-prodaje" element={<UsloviKoriscenja />} />
+            <Route path="/uslovi-isporuke" element={<UsloviIsporuke />} />
+            <Route path="/placanje-platnim-karticama" element={<PlacanjePlatnimKarticama />} />
+            <Route path="/reklamacije" element={<Reklamacije />} />
 
-            <Route
-              path="/brands"
-              element={<Brands />}
-            />
-            <Route
-              path="/faq"
-              element={<FAQPage />}
-            />
-            <Route
-              path="/zastita-privatnosti"
-              element={<ZastitaPrivatnosti />}
-            />
-            <Route
-              path="/prava-potrosaca"
-              element={<PravaPotrosaca />}
-            />
-            <Route
-              path="/uslovi-koriscenja-i-prodaje"
-              element={<UsloviKoriscenja />}
-            />
-            <Route
-              path="/uslovi-isporuke"
-              element={<UsloviIsporuke />}
-            />
-            <Route
-              path="/placanje-platnim-karticama"
-              element={<PlacanjePlatnimKarticama />}
-            />
-            <Route
-              path="/reklamacije"
-              element={<Reklamacije />}
-            />
-            <Route
-              path="/login"
-              element={<LoginPage />}
-            />
+            {/* ZAŠTIĆENE RUTE - samo ulogovani korisnici */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/profile" element={<MyAccountPage />} />
+              <Route path="/profile/orders" element={<OrdersPage />} />
               <Route
-              path="/checkout"
-              element={<CheckoutPage/>}
-            />
-
-            {/* Zaštićene rute - dostupne samo ulogovanim korisnicima */}
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute>
-                  <CartPage />
-                </ProtectedRoute>
-              }
-            />
-              <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                 <CheckoutPage/>
-                </ProtectedRoute>
-              }
-            />
-            
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <MyAccountPage />
-                </ProtectedRoute>
-              }
-            />
-             <Route
-              path="/profile/orders"
-              element={
-                <ProtectedRoute>
-                  <OrdersPage/>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/wishlist"
-              element={
-                <ProtectedRoute>
+                path="/wishlist"
+                element={
                   <div className="flex-1 p-8">
                     <h1 className="text-4xl font-bold">Lista želja</h1>
                     <div className="mt-8">
@@ -623,9 +521,26 @@ return (
                       )}
                     </div>
                   </div>
-                </ProtectedRoute>
-              }
-            />
+                }
+              />
+            </Route>
+
+            {/* ADMIN RUTE - samo administratori */}
+            <Route element={<ProtectedRoute roles={['admin']} />}>
+              <Route path="/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/products" element={<div>Admin Products Management</div>} />
+              <Route path="/admin/users" element={<div>Admin Users Management</div>} />
+              <Route path="/admin/orders" element={<div>Admin Orders Management</div>} />
+            </Route>
+
+            {/* MODERATOR + ADMIN RUTE */}
+            <Route element={<ProtectedRoute roles={['admin', 'moderator']} />}>
+              <Route path="/moderate/reviews" element={<div>Moderate Reviews</div>} />
+              <Route path="/moderate/content" element={<div>Moderate Content</div>} />
+            </Route>
+
+            {/* FALLBACK */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
 
