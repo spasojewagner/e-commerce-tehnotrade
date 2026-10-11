@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Package, Plus, Edit, Trash2, Search, Filter, Eye, Star } from 'lucide-react';
+import { Edit, Eye, Filter, Package, Plus, Search, Star, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 const AdminPanelProizvodi = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -35,7 +35,7 @@ const AdminPanelProizvodi = () => {
     }
   ]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -43,7 +43,7 @@ const AdminPanelProizvodi = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Dodajem proizvod:', formData);
     // Ovde bi bio API poziv za dodavanje proizvoda
@@ -58,7 +58,7 @@ const AdminPanelProizvodi = () => {
     });
   };
 
-  const ProductCard = ({ product }) => (
+  const ProductCard = ({ product }: { product: (typeof products)[number] }) => (
     <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50 hover:border-orange-500/50 transition-all duration-300">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-4">

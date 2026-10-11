@@ -1,5 +1,5 @@
+import { Package, Search, User } from 'lucide-react';
 import React, { useMemo } from 'react';
-import { Package, Search, Bell, User } from 'lucide-react';
 import { useAdminStore } from './../../store/useAdminStore';
 
 interface AdminHeaderProps {

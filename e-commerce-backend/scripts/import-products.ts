@@ -9,7 +9,7 @@ const CSV_FILE = path.resolve(__dirname, '../wc-product-export-26-5-2025-1748296
 
 async function run() {
   // 1) Konektuj se na MongoDB preko URI-ja iz .env
-  await mongoose.connect(process.env.MONGODB_URI!);
+  await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/e-commerce');
   console.log('✔️  Connected to MongoDB');
 
   // 2) Učitaj ceo CSV u JSON

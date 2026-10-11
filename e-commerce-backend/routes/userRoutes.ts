@@ -9,6 +9,7 @@ import {
   checkAuth,
 } from "../controllers/userControllers";
 import { protectRoute } from "../midleware/auth";
+import { authorizeRoles } from "../midleware/authorize";
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.get("/check-auth", protectRoute,checkAuth);
 router.put("/update-profile", protectRoute, updateProfile);
 router.post("/logout", protectRoute, logoutUser);
 
-// Admin routes (možeš dodati admin middleware kasnije)
-router.get("/", protectRoute, getAllUsers);
+// Admin only
+router.get("/", protectRoute, authorizeRoles("admin"), getAllUsers);
 
 export default router;

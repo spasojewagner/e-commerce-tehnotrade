@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight, Heart, LogOut, Menu, Search, ShoppingCart, User } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, Heart, ChevronDown, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Category } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore'; // Dodajemo import za cart store
+import { Category } from '../types';
 
 interface HeaderProps {
   categories: Category[];
@@ -319,7 +319,7 @@ const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* CSS stil za scrollbar */}
-      <style jsx>{`
+      <style>{`
         /* Webkit browsers (Chrome, Safari, Edge) */
         nav::-webkit-scrollbar {
           height: 8px;

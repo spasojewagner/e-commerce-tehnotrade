@@ -1,16 +1,16 @@
-import React, { useMemo, useEffect, useState } from 'react';
-import { 
-  Users, 
-  ShoppingCart, 
-  TrendingUp,
-  Plus,
-  Eye,
-  BarChart3,
-  Settings
+import {
+    BarChart3,
+    Eye,
+    Plus,
+    Settings,
+    ShoppingCart,
+    TrendingUp,
+    Users
 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAdminStore } from './../../store/useAdminStore';
-import StatCard from './StatsCard';
 import OrderRow from './OrdeRow';
+import StatCard from './StatsCard';
 
 interface DashboardStats {
   totalUsers: number;

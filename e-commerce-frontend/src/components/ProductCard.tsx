@@ -1,6 +1,6 @@
+import { Eye, Heart, ShoppingCart, Star } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Heart, Eye, ShoppingCart } from 'lucide-react';
 import { Product, usePrefetchProduct } from '../hooks/useProducts';
 
 interface ProductCardProps {
@@ -8,6 +8,7 @@ interface ProductCardProps {
   onAddToCart?: (product: Product) => void;
   onAddToWishlist?: (product: Product) => void;
   showQuickView?: boolean;
+  viewMode?: 'grid' | 'list';
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 

@@ -1,6 +1,6 @@
 // src/store/useCartStore.ts
 import { create } from 'zustand';
-import { axiosInstance } from '../https/index'
+import { axiosInstance } from '../https/index';
 
 export interface CartItem {
   product: {

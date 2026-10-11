@@ -1,5 +1,4 @@
-import React from 'react';
-import { Truck, Clock, MapPin, Phone, Mail, ArrowLeft, CheckCircle, AlertTriangle, CreditCard, Package, Shield, Calendar } from 'lucide-react';
+import { AlertTriangle, Calendar, CheckCircle, Clock, CreditCard, Mail, MapPin, Package, Phone, Shield, Truck } from 'lucide-react';
 
 const UsloviIsporuke = () => {
   return (

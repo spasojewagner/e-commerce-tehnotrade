@@ -1,5 +1,5 @@
+import { ChevronDown, ChevronUp, HelpCircle, Mail, Phone } from 'lucide-react';
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Phone, Mail, HelpCircle } from 'lucide-react';
 
 interface FAQItem {
   question: string;

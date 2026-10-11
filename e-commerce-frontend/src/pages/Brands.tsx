@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Search, Filter, Star, Zap, Award, Sparkles, ChevronRight, Grid3X3, List, Heart } from 'lucide-react';
+import { Award, ChevronRight, Filter, Grid3X3, Heart, List, Search, Sparkles, Star, Zap } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Brand {
   name: string;

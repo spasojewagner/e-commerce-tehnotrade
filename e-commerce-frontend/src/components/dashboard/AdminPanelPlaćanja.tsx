@@ -1,6 +1,6 @@
 // AdminPanelPlaćanja.tsx
+import { CheckCircle, Clock, CreditCard, DollarSign, XCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { CreditCard, DollarSign, TrendingUp, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 const AdminPanelPlaćanja: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState('all');

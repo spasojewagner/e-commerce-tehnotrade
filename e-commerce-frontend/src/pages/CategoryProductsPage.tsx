@@ -1,9 +1,9 @@
 // pages/CategoryProductsPage.tsx
-import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { useProducts, ProductQueryParams } from '../hooks/useProducts';
-import ProductCard from '../components/ProductCard';
 import { ChevronDown, Filter, Grid, List, Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import { ProductQueryParams, useProducts } from '../hooks/useProducts';
 
 interface CategoryProductsPageProps {
   onAddToCart: (product: any, quantity?: number) => void;

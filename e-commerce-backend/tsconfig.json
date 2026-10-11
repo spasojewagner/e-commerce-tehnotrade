@@ -1,17 +1,20 @@
-// tsconfig.json
 {
   "compilerOptions": {
-    "target": "ES2020",                          // кампилирај на нешто што Node подржава
-    "module": "CommonJS",                        // користимо CommonJS (node require)
-    "moduleResolution": "node",                  // налаже modules по Node правилима
-    "esModuleInterop": true,                     // омогућава default import из CommonJS модула
-    "forceConsistentCasingInFileNames": true,    // спречава import погрешних великих/малих слова
-    "skipLibCheck": true,                        // за бржу проверу, прескачи типове из node_modules
-    "outDir": "./dist",                          // где ће отићи компајлирани .js (ако користиш tsc)
-    "strict": true                               // укључује све строге TS провере
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "strict": true,
+    "noEmit": true
   },
   "include": [
-    "scripts/**/*.ts",
-    "models/**/*.ts"
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

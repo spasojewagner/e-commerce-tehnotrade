@@ -1,8 +1,26 @@
+import { Filter, Zap } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Filter } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { Product, Category } from '../types';
+import { Product as CatalogProduct } from '../hooks/useProducts';
+import { Category, Product } from '../types';
+
+const toCatalogProduct = (product: Product): CatalogProduct => ({
+  _id: String(product.id),
+  sku: String(product.id),
+  name: product.name,
+  description: product.description ?? '',
+  price: product.price,
+  originalPrice: product.originalPrice,
+  discount: product.discount,
+  rating: product.rating,
+  stock: product.inStock === false ? 0 : 10,
+  categories: [product.category],
+  brand: '',
+  images: product.images?.length ? product.images : [product.image],
+  isNew: product.isNew,
+  isHot: product.isHot,
+});
 
 interface HomePageProps {
   featuredProducts: Product[];
@@ -69,9 +87,9 @@ const HomePage: React.FC<HomePageProps> = ({
             {featuredProducts.map((product) => (
               <ProductCard
                 key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-                onAddToWishlist={onAddToWishlist}
+                product={toCatalogProduct(product)}
+                onAddToCart={onAddToCart ? () => onAddToCart(product) : undefined}
+                onAddToWishlist={onAddToWishlist ? () => onAddToWishlist(product) : undefined}
               />
             ))}
           </div>

@@ -1,139 +1,74 @@
-# E-COMMERCE
+# TehnoTrade
 
-*Transforming Shopping Into Seamless, Limitless Experiences*
+[![CI](https://github.com/spasojewagner/e-commerce-tehnotrade/actions/workflows/ci.yml/badge.svg)](https://github.com/spasojewagner/e-commerce-tehnotrade/actions/workflows/ci.yml)
 
-![Last Commit](https://img.shields.io/badge/last%20commit-june-blue)
-![TypeScript](https://img.shields.io/badge/typescript-99.7%25-blue)
-![Languages](https://img.shields.io/badge/languages-4-brightgreen)
+An online store for consumer electronics, built for a real client. Shoppers browse the catalog, keep a cart and place orders; admins manage orders and customers from a dashboard. The catalog was moved over from the client's WooCommerce shop.
 
-## Built with the tools and technologies:
-
-### Backend
-- **Express.js** - Web framework for Node.js
-- **JSON** - Data interchange format
-- **Markdown** - Documentation
-- **npm** - Package manager
-- **Mongoose** - MongoDB object modeling
-- **ENV** - Environment configuration
-- **JavaScript** - Programming language
-
-### Frontend
-- **React** - JavaScript library for building user interfaces
-- **TypeScript** - Typed superset of JavaScript
-- **tsnode** - TypeScript execution environment
-- **Vite** - Build tool and development server
-- **ESLint** - Code linting tool
-- **Axios** - HTTP client library
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Testing](#testing)
-
-## Overview
-
-E-commerce is a full-stack platform that combines a scalable backend with a modern, React-based frontend, designed to deliver a seamless online shopping experience. It provides a robust architecture with role-based security, comprehensive data models, and automated scripts for data management.
-
-### Why e-commerce?
-
-This project enables developers to build, manage, and scale online stores efficiently. The core features include:
-
-🔐 **Role-based Authentication**: Ensures secure access control for users and admins.
-
-⚙️ **Modular Architecture**: Supports complex workflows like product management, order processing, and user interactions.
-
-⚡ **Modern Frontend**: Built with React, TypeScript, Vite, and Tailwind CSS for a responsive, scalable UI.
-
-📊 **Admin Dashboard**: Offers analytics, order oversight, and product management tools.
-
-🤖 **Data Automation**: Includes scripts for bulk product import and data correction to streamline maintenance.
-
-## Getting Started
-
-### Prerequisites
-
-This project requires the following dependencies:
-
-- **Programming Language**: TypeScript
-- **Package Manager**: npm
-
-### Installation
-
-Build e-commerce from the source and install dependencies:
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/methodtest/e-commerce
-   ```
-
-2. **Navigate to the project directory**:
-   ```bash
-   cd e-commerce
-   ```
-
-3. **Install dependencies**:
-
-   For frontend:
-   ```bash
-   cd e-commerce-frontend
-   npm install
-   ```
-
-   For backend:
-   ```bash
-   cd e-commerce-backend
-   npm install
-   ```
-
-### Usage
-
-Run the project with:
-
-**Frontend**:
-```bash
-cd e-commerce-frontend
-npm run dev
-```
-
-**Backend**:
-```bash
-cd e-commerce-backend
-npm run dev
-```
-
-### Testing
-
-E-commerce uses a test framework. Run the test suite with:
-
-```bash
-npm test
-```
-
-## Architecture
-
-The project is structured as a monorepo with separate frontend and backend applications:
-
-- `e-commerce-frontend` - React + TypeScript frontend application
-- `e-commerce-backend` - Express.js backend API
+**Stack:** React, TypeScript, Vite, Tailwind CSS, Zustand, TanStack Query · Node.js, Express, MongoDB with Mongoose · JWT in httpOnly cookies
 
 ## Features
 
-- User authentication and authorization
-- Product catalog management
-- Shopping cart functionality
-- Order processing system
-- Admin dashboard
-- Responsive design
-- RESTful API architecture
+- **Catalog:** search, filters by category, brand and price, sorting and pagination, product pages.
+- **Accounts:** sign-up and sign-in with a JWT in an httpOnly cookie, profile editing, and a cart stored on the account.
+- **Checkout:** prices and totals are always calculated on the server from the database.
+  - Stock is taken with a conditional update, so two shoppers can never both buy the last unit.
+  - If one line is short, nothing is taken.
+- **Orders:** shoppers see only their own orders and can withdraw one while it is still pending; stock goes back.
+- **Admin dashboard:** all orders with status changes (cancelling returns the stock), customers, and sales overview.
+- **Catalog import:** `npm run import:products` loads the WooCommerce CSV export into MongoDB.
 
-## Contributing
+## Security
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Sign-up always creates a regular account; the `role` field from the request is ignored. Admins are promoted with a script, see below.
+- Admin routes (user list, all orders, status changes, data repair) check the role on the server.
+- Someone else's order returns 404, so order ids can't be probed.
+- `JWT_SECRET` is required in production.
 
-## License
+## Running it locally
 
-This project is licensed under the MIT License.
+You need Node.js 20+ and MongoDB, either local or Atlas.
+
+```bash
+# API (http://localhost:4000)
+cd e-commerce-backend
+cp .env.example .env
+npm install
+npm run import:products            # optional: load the catalog from the CSV
+npm run dev
+
+# Store (http://localhost:5173)
+cd ../e-commerce-frontend
+npm install
+npm run dev
+```
+
+To make an account an admin, sign up in the store and then run:
+
+```bash
+cd e-commerce-backend
+npm run make-admin -- you@example.com
+```
+
+## Tests
+
+```bash
+cd e-commerce-backend
+npm test          # API tests: roles, order ownership, stock, cancellations
+npm run typecheck
+```
+
+The tests start a temporary in-memory MongoDB on the first run. Set `MONGO_TEST_URI` to use your own instead. GitHub Actions type-checks and tests the API, and type-checks and builds the store, on every push.
+
+## Project structure
+
+```
+e-commerce-backend/
+  app.ts                 Express app (used by the server and the tests)
+  server.ts              connects to MongoDB and starts listening
+  controllers/ models/ routes/ midleware/
+  scripts/               WooCommerce import, make-admin, image repair
+  test/                  Vitest + Supertest
+e-commerce-frontend/
+  src/pages/             store pages and the admin dashboard
+  src/store/             Zustand stores (auth, cart, orders, admin)
+```

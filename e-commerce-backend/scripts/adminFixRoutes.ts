@@ -1,8 +1,12 @@
 // routes/adminFixRoutes.ts
 import express from 'express';
 import { Product } from '../models/products';
+import { protectRoute } from '../midleware/auth';
+import { authorizeRoles } from '../midleware/authorize';
 
+// One-off data repair for products imported from WooCommerce. Admins only.
 const router = express.Router();
+router.use(protectRoute, authorizeRoles('admin'));
 
 router.put('/fix-images', async (_req, res) => {
   try {

@@ -1,7 +1,7 @@
 
 // AdminPanelPodešavanja.tsx
+import { Bell, Database, Save, Settings, Shield, User } from 'lucide-react';
 import React, { useState } from 'react';
-import { Settings, Save, User, Bell, Shield, Database, Globe, Palette } from 'lucide-react';
 
 const AdminPanelPodešavanja: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general');

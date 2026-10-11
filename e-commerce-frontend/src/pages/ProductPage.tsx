@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Filter, Grid, List, ChevronDown, X, Search, SlidersHorizontal, ShoppingCart } from 'lucide-react';
-import { useProducts, useBrands, useCategories, ProductQueryParams } from '../hooks/useProducts';
+import { Grid, List, Search, ShoppingCart, SlidersHorizontal, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { Product } from '../hooks/useProducts';
+import { Product, ProductQueryParams, useBrands, useCategories, useProducts } from '../hooks/useProducts';
 import { useCartStore } from '../store/useCartStore';
 
 interface FilterState {

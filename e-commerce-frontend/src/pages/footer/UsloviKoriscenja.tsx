@@ -1,5 +1,4 @@
-import React from 'react';
-import { FileText, Phone, CreditCard, MapPin, Mail, ArrowLeft, CheckCircle, AlertCircle, ShoppingCart, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle, CreditCard, FileText, MapPin, RefreshCw, ShoppingCart } from 'lucide-react';
 
 const UsloviKoriscenja = () => {
   return (

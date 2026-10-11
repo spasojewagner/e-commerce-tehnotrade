@@ -1,16 +1,16 @@
-import React, { useMemo } from 'react';
-import { 
-  Home, 
-  Package, 
-  ShoppingCart, 
-  Star, 
-  BarChart3, 
-  Settings, 
-  Users, 
-  CreditCard, 
-  TrendingUp,
-  Bell
+import {
+    BarChart3,
+    Bell,
+    CreditCard,
+    Home,
+    Package,
+    Settings,
+    ShoppingCart,
+    Star,
+    TrendingUp,
+    Users
 } from 'lucide-react';
+import React, { useMemo } from 'react';
 import { useAdminStore } from './../../store/useAdminStore';
 
 interface SidebarItem {

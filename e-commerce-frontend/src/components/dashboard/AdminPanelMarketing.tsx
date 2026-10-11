@@ -1,6 +1,6 @@
 // AdminPanelMarketing.tsx
+import { Eye, Mail, MousePointer, Send, TrendingUp, Users } from 'lucide-react';
 import React, { useState } from 'react';
-import { Mail, Users, TrendingUp, Send, Eye, MousePointer, Calendar } from 'lucide-react';
 
 export const AdminPanelMarketing: React.FC = () => {
   const [activeTab, setActiveTab] = useState('campaigns');

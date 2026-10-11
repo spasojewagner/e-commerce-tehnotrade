@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { User, Settings, Package, Heart, MapPin, CreditCard, Bell, Shield, Edit, Eye, EyeOff, Star, Calendar, Truck, Plus, Trash2 } from 'lucide-react';
+import { Bell, CreditCard, Edit, Eye, EyeOff, MapPin, Package, Plus, Settings, Shield, Trash2, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore'; // Adjust path as needed
 import OrdersPage from './OrdersPage'; // Import the OrdersPage component
 

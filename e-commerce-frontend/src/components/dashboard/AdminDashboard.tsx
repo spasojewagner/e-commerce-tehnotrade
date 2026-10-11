@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
 import { Package } from 'lucide-react';
-import AdminSidebar from './AdminSidebar';
+import React, { useEffect, useState } from 'react';
+import { useAdminStore } from '../../store/useAdminStore';
 import AdminHeader from './AdminHeader';
-import AdminPanelPocetna from './AdminPanelPocetna';
-import AdminPanelNarudzbine from './AdminPanelNarudzbine';
- import AdminPanelKupci from './AdminPanelKupci';
+import AdminPanelAnalitika from './AdminPanelAnalitika';
 import AdminPanelIzvestaji from './AdminPanelIzvestaji';
+import AdminPanelKupci from './AdminPanelKupci';
+import AdminPanelMarketing from './AdminPanelMarketing';
+import AdminPanelNarudzbine from './AdminPanelNarudzbine';
+import AdminPanelPlaćanja from './AdminPanelPlaćanja';
+import AdminPanelPocetna from './AdminPanelPocetna';
 import AdminPanelPodešavanja from './AdminPanelPodešavanja';
 import AdminPanelProizvodi from './AdminPanelProizvodi';
-import AdminPanelPlaćanja from './AdminPanelPlaćanja';
-import AdminPanelAnalitika from './AdminPanelAnalitika';
-import AdminPanelMarketing from './AdminPanelMarketing';
-import { useAdminStore } from '../../store/useAdminStore';
+import AdminSidebar from './AdminSidebar';
 
 const AdminDashboard: React.FC = () => {
   const [activeSection, setActiveSection] = useState('dashboard');

@@ -1,6 +1,6 @@
+import { ChevronDown, X, Zap } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { X, ChevronDown, Zap } from 'lucide-react';
 import { Category, HotDeal } from '../types';
 
 interface SidebarProps {

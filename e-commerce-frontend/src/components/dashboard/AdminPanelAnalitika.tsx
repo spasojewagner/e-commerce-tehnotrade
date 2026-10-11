@@ -1,6 +1,6 @@
 // AdminPanelAnalitika.tsx
+import { BarChart3, DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Users, ShoppingCart, DollarSign, Calendar } from 'lucide-react';
 
 const AdminPanelAnalitika: React.FC = () => {
   const [timeRange, setTimeRange] = useState('7days');

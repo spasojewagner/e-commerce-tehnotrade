@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FileText, Shield, Clock, AlertTriangle, Phone, Mail, CheckCircle, Info, Calendar, Scale, MessageSquare } from 'lucide-react';
+import { AlertTriangle, Calendar, CheckCircle, Clock, FileText, Info, Mail, MessageSquare, Phone, Scale, Shield } from 'lucide-react';
+import { useState } from 'react';
 
 const Reklamacije = () => {
   const [activeTab, setActiveTab] = useState('osnovne-info');

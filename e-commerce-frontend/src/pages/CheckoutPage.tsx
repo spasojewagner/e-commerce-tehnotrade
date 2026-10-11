@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CreditCard, Truck, User, MapPin, Phone, Mail, Package, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, CreditCard, MapPin, Package, Truck, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCartStore } from '../store/useCartStore';
 import { useOrdersStore } from '../store/useOrdersStore';
 
 interface OrderData {

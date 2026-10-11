@@ -1,18 +1,18 @@
-import React from 'react';
-import { 
-  Shield, 
-  Lock, 
-  Eye, 
-  Users, 
-  Database, 
-  Clock, 
-  Cookie, 
-  FileText, 
-  Mail, 
-  Phone,
-  MapPin,
-  Building2
+import {
+    Building2,
+    Clock,
+    Cookie,
+    Database,
+    Eye,
+    FileText,
+    Lock,
+    Mail,
+    MapPin,
+    Phone,
+    Shield,
+    Users
 } from 'lucide-react';
+import React from 'react';
 
 const ZastitaPrivatnosti: React.FC = () => {
   return (

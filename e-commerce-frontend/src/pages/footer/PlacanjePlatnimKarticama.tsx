@@ -1,5 +1,4 @@
-import React from 'react';
-import { CreditCard, Shield, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, CreditCard, Lock, Shield } from 'lucide-react';
 
 const PlacanjePlatnimKarticama = () => {
   return (

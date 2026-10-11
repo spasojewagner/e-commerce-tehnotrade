@@ -2,14 +2,13 @@
 
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { COOKIE_NAME, jwtSecret } from "../config/auth";
 
 // Extended Request interface to include both user ID and role
 export interface AuthRequest extends Request {
   user?: { id: string; role: string };
 }
 
-const COOKIE_NAME = "jwt";
-const SECRET = process.env.JWT_SECRET || "tajna-koja-bi-trebala-biti-u-env-fajlu";
 
 /**
  * protectRoute
@@ -40,7 +39,7 @@ export const protectRoute = (req: AuthRequest, res: Response, next: NextFunction
 
     // 3) Verifikacija tokena i ekstrakcija payload-a
     //    Očekujemo da payload ima oblik { id: string; role: string }
-    const decoded = jwt.verify(token, SECRET) as { id: string; role: string };
+    const decoded = jwt.verify(token, jwtSecret()) as { id: string; role: string };
 
     // 4) Postavljamo req.user kako bi authorize middleware ili kontroleri mogli da provere rolu
     req.user = {
@@ -50,7 +49,6 @@ export const protectRoute = (req: AuthRequest, res: Response, next: NextFunction
 
     next();
   } catch (err) {
-    console.error("Greška u autentifikaciji:", err);
     res.status(401).json({ error: "Pristup nije dozvoljen. Nevažeći token." });
   }
 };

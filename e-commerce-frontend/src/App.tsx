@@ -1,46 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import {
-  Home, Zap, Smartphone, Laptop, Monitor, Camera,
-  Headphones, Gamepad2, Tv,
-  Sun,
-  Heart,
-  Glasses,
-  Bike,
-  Wind,
-  HardDrive,
-  ChefHat
+    Bike,
+    ChefHat,
+    Gamepad2,
+    Glasses,
+    HardDrive,
+    Heart,
+    Home,
+    Monitor,
+    Smartphone,
+    Sun,
+    Tv,
+    Wind,
+    Zap
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 // Components
 import Header from './components/Header';
-import Sidebar from './components/SideBar';
-import HomePage from './pages/HomePage';
 import ProductDetail from './components/ProductDetails';
 import ProtectedRoute from './components/ProtectedRoute';
+import HomePage from './pages/HomePage';
 
 // Types
-import { Product, Category, HotDeal, CartItem } from './types';
-import CartPage from './pages/CartPage';
-import MyAccountPage from './pages/MyAccountPage';
-import Brands from './pages/Brands';
-import FAQPage from './pages/FAQPage';
 import Footer from './components/Footer';
-import ZastitaPrivatnosti from './pages/footer/ZastitaPrivatnosti';
-import PravaPotrosaca from './pages/footer/PravaPotrosaca';
-import UsloviKoriscenja from './pages/footer/UsloviKoriscenja';
-import UsloviIsporuke from './pages/footer/UsloviIsporuke';
+import Brands from './pages/Brands';
+import CartPage from './pages/CartPage';
+import FAQPage from './pages/FAQPage';
 import PlacanjePlatnimKarticama from './pages/footer/PlacanjePlatnimKarticama';
+import PravaPotrosaca from './pages/footer/PravaPotrosaca';
 import Reklamacije from './pages/footer/Reklamacije';
+import UsloviIsporuke from './pages/footer/UsloviIsporuke';
+import UsloviKoriscenja from './pages/footer/UsloviKoriscenja';
+import ZastitaPrivatnosti from './pages/footer/ZastitaPrivatnosti';
 import LoginPage from './pages/LoginPage';
+import MyAccountPage from './pages/MyAccountPage';
+import { CartItem, Category, HotDeal, Product } from './types';
 
 // Auth store
-import { useAuthStore } from './store/useAuthStore';
-import ProductsPage from './pages/ProductPage';
+import AdminDashboard from './components/dashboard/AdminDashboard';
 import CategoryProductsPage from './pages/CategoryProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
-import AdminDashboard from './components/dashboard/AdminDashboard';
+import ProductsPage from './pages/ProductPage';
+import { useAuthStore } from './store/useAuthStore';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

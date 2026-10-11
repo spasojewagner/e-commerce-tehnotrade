@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, Filter, Star, Heart, Eye, Zap, Smartphone, Laptop, Monitor, Camera, Headphones, Gamepad2, Tv, Home } from 'lucide-react';
+import { Camera, ChevronDown, Eye, Filter, Heart, Home, Laptop, Menu, Search, ShoppingCart, Smartphone, Star, Tv, User, X, Zap } from 'lucide-react';
+import { useState } from 'react';
 
 const TehnoTrade = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

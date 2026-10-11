@@ -15,6 +15,7 @@ interface User {
   dateOfBirth?: Date;
   createdAt: Date;
   updatedAt: Date;
+  orderCount?: number;
 }
 
 interface Product {

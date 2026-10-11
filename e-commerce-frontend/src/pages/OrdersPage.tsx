@@ -1,7 +1,7 @@
+import { AlertCircle, Calendar, Clock, CreditCard, Eye, MapPin, Package, RefreshCw, Star, Truck, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Calendar, Eye, Star, Truck, Package, AlertCircle, RefreshCw, ChevronDown, ChevronUp, User, MapPin, CreditCard, Clock } from 'lucide-react';
-import { useOrdersStore, type Order, type OrderItem } from '../store/useOrdersStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useOrdersStore, type Order } from '../store/useOrdersStore';
 
 const getStatusColor = (status: Order['status']): string => {
   switch (status) {

@@ -1,5 +1,5 @@
+import { CreditCard, Facebook, Instagram, Mail, MapPin, Phone, Youtube } from 'lucide-react';
 import React from 'react';
-import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface FooterProps {}

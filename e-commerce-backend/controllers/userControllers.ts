@@ -3,22 +3,18 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { AuthRequest } from "../midleware/auth";
-
-const JWT_SECRET = process.env.JWT_SECRET || "tajna-koja-bi-trebala-biti-u-env-fajlu";
-const COOKIE_NAME = "jwt";
+import { COOKIE_NAME, cookieOptions, jwtSecret } from "../config/auth";
 
 // Helper funkcija za kreiranje JWT tokena
 // controllers/authController.ts
 const generateToken = (userId: string, role: string): string => {
-  return jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ id: userId, role }, jwtSecret(), { expiresIn: '7d' });
 };
 
 // Helper funkcija za setovanje cookie-ja
 const setTokenCookie = (res: Response, token: string) => {
   res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-     
+    ...cookieOptions(),
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dana
   });
 };
@@ -78,7 +74,9 @@ export const checkAuth = async (req: AuthRequest, res: Response): Promise<void> 
 // @access  Public
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, name, surname, phone, password, gender, terms, dateOfBirth, role } = req.body;
+    // `role` is deliberately not read from the body: accounts are always created as "user".
+    // Admins are promoted with `npm run make-admin -- <email>`.
+    const { email, name, surname, phone, password, gender, terms, dateOfBirth } = req.body;
 
     // Validacija obaveznih polja
     if (!email || !name || !surname || !phone || !password || !gender) {
@@ -128,7 +126,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       phone: phone.trim(),
       password: hashedPassword,
       gender,
-      role,
+      role: "user",
       terms: terms || false,
       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
     });
@@ -516,11 +514,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 export const logoutUser = async (req: Request, res: Response): Promise<void> => {
   try {
     // Brisanje cookie-ja
-    res.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-    
-    });
+    res.clearCookie(COOKIE_NAME, cookieOptions());
 
     res.status(200).json({
       message: "Uspešno ste se odjavili",

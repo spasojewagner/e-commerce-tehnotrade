@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, CreditCard, Truck, Gift, Percent, AlertCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CreditCard, Gift, Minus, Percent, Plus, ShoppingBag, Trash2, Truck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore, CartItem } from '../store/useCartStore';
+import { useCartStore } from '../store/useCartStore';
 
 interface AppliedPromo {
   code: string;

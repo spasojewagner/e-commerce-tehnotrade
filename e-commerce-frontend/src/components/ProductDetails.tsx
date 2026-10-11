@@ -1,6 +1,6 @@
+import { Heart, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck } from 'lucide-react';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, Share2, Shield, Truck, RotateCcw, Minus, Plus } from 'lucide-react';
 import { Product, useProduct } from '../hooks/useProducts';
 
 interface ProductDetailProps {

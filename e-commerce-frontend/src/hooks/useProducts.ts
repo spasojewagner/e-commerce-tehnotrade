@@ -1,5 +1,5 @@
 // hooks/useProducts.ts
-import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 
 const API_BASE_URL = import.meta.env.MODE === "development"
   ? "http://localhost:4000/api"

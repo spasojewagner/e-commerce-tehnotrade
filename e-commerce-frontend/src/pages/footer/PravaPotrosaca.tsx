@@ -1,5 +1,4 @@
-import React from 'react';
-import { Shield, Phone, Mail, MapPin, FileText, Clock, RefreshCw, CreditCard, ArrowLeft } from 'lucide-react';
+import { CreditCard, FileText, Mail, MapPin, Phone, RefreshCw, Shield } from 'lucide-react';
 
 const PravaPotrosaca = () => {
   return (

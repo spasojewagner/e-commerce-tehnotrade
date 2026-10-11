@@ -1,17 +1,16 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Download, 
-  Calendar,
-  Users,
-  ShoppingCart,
-  DollarSign,
-  Package,
-  FileText,
-  PieChart,
-  Activity
+import {
+    Activity,
+    BarChart3,
+    DollarSign,
+    Download,
+    FileText,
+    Package,
+    PieChart,
+    ShoppingCart,
+    TrendingUp,
+    Users
 } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 import { useAdminStore } from './../../store/useAdminStore';
 
 const AdminPanelIzvestaji: React.FC = () => {

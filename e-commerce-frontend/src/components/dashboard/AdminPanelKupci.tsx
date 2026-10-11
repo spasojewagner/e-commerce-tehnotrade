@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  ShoppingCart,
-  Eye,
-  Ban,
-  CheckCircle,
-  AlertCircle
+import {
+    AlertCircle,
+    Calendar,
+    Eye,
+    Filter,
+    Mail,
+    Phone,
+    Search,
+    ShoppingCart,
+    Users
 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAdminStore } from './../../store/useAdminStore';
 
 const AdminPanelKupci: React.FC = () => {
@@ -51,7 +49,7 @@ const AdminPanelKupci: React.FC = () => {
     return filtered;
   }, [users, searchTerm, filterStatus]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     return new Date(dateString).toLocaleDateString('sr-RS');
   };
 
